@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>logic tests</title></head>
+<body>
+<!-- Same hours markup as the real pages, so the tests exercise the real
+     table-reading path rather than a hand-made fixture. -->
+<table class="hours"><tbody>
+  <tr data-day="1" data-open="05:30" data-close="14:00"><th>Monday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="2" data-open="05:30" data-close="14:00"><th>Tuesday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="3" data-open="05:30" data-close="14:00"><th>Wednesday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="4" data-open="05:30" data-close="19:00"><th>Thursday</th><td>5:30 AM – 7:00 PM</td></tr>
+  <tr data-day="5" data-open="05:30" data-close="14:00"><th>Friday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="6" data-open="05:30" data-close="15:00"><th>Saturday</th><td>5:30 AM – 3:00 PM</td></tr>
+  <tr data-day="0" data-open="05:30" data-close="13:00"><th>Sunday</th><td>5:30 AM – 1:00 PM</td></tr>
+</tbody></table>
+
+<script src="../../js/sheet.js"></script>
+<script>
+// Keep this page offline: the pure functions are what is under test here,
+// and the network paths are covered by specials-failure-modes.html.
+window.JWSheet.load = function () {
+  return Promise.reject(new Error("stubbed for tests"));
+};
+</script>
+<script src="../../js/main.js"></script>
+<script src="../../js/specials.js"></script>
+<script src="../../js/menu.js"></script>
+<script>
+var results = [];
+function ok(name, actual, expected) {
+  var a = JSON.stringify(actual), e = JSON.stringify(expected);
+  results.push({ pass: a === e, name: name, actual: a, expected: e });
+}
+
+var H = window.JW_HOURS, S = window.JW_SPECIALS, M = window.JW_MENU, K = window.JWSheet;
+var week = H.readHours(document);
+function at(day, hh, mm) {
+  var s = H.currentState(week, { day: day, minutes: hh * 60 + mm });
+  return s ? (s.open ? "OPEN" : "CLOSED") + " | " + s.headline + " | " + s.note : null;
+}
+
+/* ---------------------------------------------------------- hours ------ */
+ok("week parsed from table", week.map(function (d) { return d ? d.open + "-" + d.close : null; }),
+   ["330-780", "330-840", "330-840", "330-840", "330-1140", "330-840", "330-900"]);
+
+ok("Tue 05:29 before opening",  at(2, 5, 29),  "CLOSED | Closed right now | Opens today at 5:30 AM");
+ok("Tue 05:30 opening minute",  at(2, 5, 30),  "OPEN | Open now | Until 2:00 PM today");
+ok("Tue 13:59 last minute",     at(2, 13, 59), "OPEN | Open now | Until 2:00 PM today");
+ok("Tue 14:00 closing minute",  at(2, 14, 0),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+ok("Tue 14:01 just after",      at(2, 14, 1),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+
+/* Thursday runs five hours past every other day. */
+ok("Thu 14:00 still open late", at(4, 14, 0),  "OPEN | Open now | Until 7:00 PM today");
+ok("Thu 18:59 last minute",     at(4, 18, 59), "OPEN | Open now | Until 7:00 PM today");
+ok("Thu 19:00 closing minute",  at(4, 19, 0),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+
+/* Saturday closes at 3, an hour after the weekdays. */
+ok("Sat 14:00 open past 2pm",   at(6, 14, 0),  "OPEN | Open now | Until 3:00 PM today");
+ok("Sat 14:59 last minute",     at(6, 14, 59), "OPEN | Open now | Until 3:00 PM today");
+ok("Sat 15:00 closing minute",  at(6, 15, 0),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+ok("Sat 23:59 rolls to Sunday", at(6, 23, 59), "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+
+/* Sunday is the short day, closing at 1. */
+ok("Sun 12:59 last minute",     at(0, 12, 59), "OPEN | Open now | Until 1:00 PM today");
+ok("Sun 13:00 closing minute",  at(0, 13, 0),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+ok("Sun 00:00 midnight",        at(0, 0, 0),   "CLOSED | Closed right now | Opens today at 5:30 AM");
+ok("Sun 14:00 weekday close",   at(0, 14, 0),  "CLOSED | Closed right now | Opens tomorrow at 5:30 AM");
+
+ok("Wed 12:00 midday",          at(3, 12, 0),  "OPEN | Open now | Until 2:00 PM today");
+
+/* A day off, to prove the next-open search is not hardcoded to "tomorrow" */
+var withDayOff = week.slice();
+withDayOff[3] = null;                       // shop shut on Wednesdays
+ok("Tue after close, Wed shut", H.currentState(withDayOff, { day: 2, minutes: 16 * 60 }).note,
+   "Opens on Thursday at 5:30 AM");
+ok("Wed all day, Wed shut",     H.currentState(withDayOff, { day: 3, minutes: 10 * 60 }).note,
+   "Opens tomorrow at 5:30 AM");
+
+ok("formatTime midnight",  H.formatTime(0),    "12:00 AM");
+ok("formatTime noon",      H.formatTime(720),  "12:00 PM");
+ok("formatTime 5:30am",    H.formatTime(330),  "5:30 AM");
+ok("formatTime 1pm",       H.formatTime(780),  "1:00 PM");
+ok("formatTime 7:05pm",    H.formatTime(1145), "7:05 PM");
+ok("toMinutes half hour",  H.toMinutes("05:30"), 330);
+ok("toMinutes bad input",  H.toMinutes("nope"), null);
+ok("toMinutes blank",      H.toMinutes(""),     null);
+
+/* -------------------------------------------- times typed by a human --- */
+ok("parseClock 12h with space",   H.parseClock("5:30 AM"),  330);
+ok("parseClock 12h no space",     H.parseClock("5:30am"),   330);
+ok("parseClock 12h no minutes",   H.parseClock("7 PM"),     1140);
+ok("parseClock 24h",              H.parseClock("14:00"),    840);
+ok("parseClock midnight 12 AM",   H.parseClock("12:00 AM"), 0);
+ok("parseClock noon 12 PM",       H.parseClock("12:00 PM"), 720);
+ok("parseClock 1 PM",             H.parseClock("1:00 PM"),  780);
+ok("parseClock with full stops",  H.parseClock("5:30 a.m."), 330);
+ok("parseClock lower case pm",    H.parseClock("7:00 pm"),  1140);
+ok("parseClock the word closed",  H.parseClock("Closed"),   null);
+ok("parseClock blank",            H.parseClock(""),         null);
+ok("parseClock nonsense",         H.parseClock("whenever"), null);
+ok("parseClock impossible hour",  H.parseClock("25:00"),    null);
+ok("parseClock impossible 12h",   H.parseClock("13:00 PM"), null);
+ok("parseClock impossible mins",  H.parseClock("5:99"),     null);
+
+/* A blank or "Closed" cell means shut that day. Anything unreadable means
+   the row is unusable, and that day must keep the hours the page shipped
+   with rather than being advertised as closed. */
+ok("applySheetHours keeps a mistyped day", (function () {
+  H.applySheetHours([{ day: "Monday", open: "gibberish", close: "nonsense", note: "" },
+                     { day: "Sunday", open: "7:00 AM", close: "11:00 AM", note: "" }]);
+  var w = H.readHours(document);
+  return [w[1].open + "-" + w[1].close, w[0].open + "-" + w[0].close];
+})(), ["330-840", "420-660"]);
+
+ok("applySheetHours honours a deliberate Closed", (function () {
+  H.applySheetHours([{ day: "Monday", open: "Closed", close: "Closed", note: "" }]);
+  return H.readHours(document)[1];
+})(), null);
+
+/* A half-finished edit must never advertise the shop as closed. Only the
+   literal word, or BOTH cells blank, closes a day. */
+ok("one blank cell keeps the committed day", (function () {
+  H.applySheetHours([{ day: "Saturday", open: "5:30 AM", close: "", note: "" }]);
+  var d = H.readHours(document)[6];
+  return d ? d.open + "-" + d.close : null;
+})(), "330-900");
+
+ok("blank open beside a real close is also kept", (function () {
+  H.applySheetHours([{ day: "Saturday", open: "", close: "3:00 PM", note: "" }]);
+  var d = H.readHours(document)[6];
+  return d ? d.open + "-" + d.close : null;
+})(), "330-900");
+
+ok("both cells blank does close the day", (function () {
+  H.applySheetHours([{ day: "Saturday", open: "", close: "", note: "" }]);
+  return H.readHours(document)[6];
+})(), null);
+
+/* A week with no open day at all is an answer, not a missing table: the
+   banner must say so instead of leaving a stale "Open now" behind. */
+ok("all-closed week still reports a state", (function () {
+  var shut = [null, null, null, null, null, null, null];
+  var s = H.currentState(shut, { day: 3, minutes: 10 * 60 });
+  return s ? [s.open, s.headline, /\d/.test(s.note)] : null;
+})(), [false, "Closed", false]);
+
+ok("readHours returns a week even when every day is closed", (function () {
+  var host = document.createElement("div");
+  host.innerHTML = '<table><tbody><tr data-day="1"><th>Mon</th><td>Closed</td></tr></tbody></table>';
+  var w = H.readHours(host);
+  return w === null ? "null" : w.length + ":" + w.filter(Boolean).length;
+})(), "7:0");
+
+ok("readHours still returns null with no table at all",
+   H.readHours(document.createElement("div")), null);
+
+/* -------------------------------------------------- timezone locking --- */
+function nyClock(iso) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", weekday: "short", hour: "2-digit",
+    minute: "2-digit", hourCycle: "h23"
+  }).format(new Date(iso));
+}
+ok("EST winter instant", nyClock("2026-01-15T20:30:00Z"), "Thu 15:30");
+ok("EDT summer instant", nyClock("2026-07-16T20:30:00Z"), "Thu 16:30");
+ok("EDT 2pm Thursday edge", nyClock("2026-07-16T18:00:00Z"), "Thu 14:00");
+
+/* ------------------------------------------------------------ csv ------ */
+function cols(csv) { return K.toObjects(K.parseCSV(csv)).columns; }
+function objs(csv) { return K.toObjects(K.parseCSV(csv)).rows; }
+
+ok("plain rows",
+   objs("Item,Description,Price,Day\nChili,Warm,$5,\nSoup,,$4.75,"),
+   [{ item: "Chili", description: "Warm", price: "$5", day: "" },
+    { item: "Soup", description: "", price: "$4.75", day: "" }]);
+
+ok("comma inside quotes",
+   objs('Item,Description\n"Rito Wrap","Chicken, bacon, cheddar"')[0].description,
+   "Chicken, bacon, cheddar");
+
+ok("escaped double quotes",
+   objs('Item\n"""Rito"" Wrap"')[0].item, '"Rito" Wrap');
+
+ok("newline inside quotes",
+   objs('Item,Description\nGyro,"Lamb\nor chicken"')[0].description, "Lamb\nor chicken");
+
+ok("CRLF line endings", objs("Item,Price\r\nChili,$5\r\n")[0].price, "$5");
+
+ok("blank rows skipped", objs("Item,Price\n,\nChili,$5\n   ,  \n").length, 1);
+
+ok("cells trimmed", objs("Item,Price\n  Chili  ,  $5  ")[0], { item: "Chili", price: "$5" });
+
+ok("byte order mark stripped", cols("﻿Item,Price\nChili,$5"), ["item", "price"]);
+
+ok("header names lower-cased and mapped, any order",
+   objs("Day,Price,Item,Description\nFriday,$9.50,Perch,With tartar")[0],
+   { day: "Friday", price: "$9.50", item: "Perch", description: "With tartar" });
+
+/* A short row fills the remaining columns with blanks rather than shifting
+   the values along, which is what would make a description echo a price. */
+ok("missing trailing columns come back blank",
+   objs("Item,Description,Price,Day\nChili")[0],
+   { item: "Chili", description: "", price: "", day: "" });
+
+/* A tab holding only its header row must still report its columns: that is
+   how "not filled in yet" is told apart from "this is the wrong tab". */
+ok("header-only tab reports columns", cols("Item,Description,Price,Day\n"),
+   ["item", "description", "price", "day"]);
+ok("header-only tab has no rows", objs("Item,Description,Price,Day\n").length, 0);
+
+ok("sign-in page detected", K.looksLikeHtml("<!DOCTYPE html><html>"), true);
+ok("csv not mistaken for html", K.looksLikeHtml("Item,Price\nChili,$5"), false);
+
+/* Google types a numeric cell as a number, so "12" comes back as "12.0".
+   Anything a person actually typed passes through untouched. */
+ok("bare integer becomes money",  K.cleanPrice("12"),   "$12.00");
+ok("google numeric artifact",     K.cleanPrice("12.0"), "$12.00");
+ok("one decimal place",           K.cleanPrice("10.5"), "$10.50");
+ok("dollar sign left alone",      K.cleanPrice("$5.00"), "$5.00");
+ok("free text left alone",        K.cleanPrice("Sm $5.00 / Lg $7.50"), "Sm $5.00 / Lg $7.50");
+ok("each left alone",             K.cleanPrice("$1.75 each"), "$1.75 each");
+ok("blank stays blank",           K.cleanPrice(""), "");
+
+/* -------------------------------------------------------- specials ----- */
+function specials(csv) {
+  return S.toSpecials(objs(csv)).map(function (s) {
+    return [s.item, s.description, s.price, s.days.join("+")].join("|");
+  });
+}
+ok("specials rows",
+   specials("Item,Description,Price,Day\nPerch,With tartar,$9.50,\nPot Pie,,20,Thursday"),
+   ["Perch|With tartar|$9.50|", "Pot Pie||$20.00|Thursday"]);
+ok("rows with no item skipped",
+   specials("Item,Price,Day\n,$5,\nChili,$5,"), ["Chili||$5|"]);
+
+/* The owners really do put several days in one cell. */
+ok("single day",          S.matchDays("Thursday"),            ["Thursday"]);
+ok("abbreviation",        S.matchDays("thu"),                 ["Thursday"]);
+ok("upper case padded",   S.matchDays("THURSDAY "),           ["Thursday"]);
+ok("comma separated",     S.matchDays("Wednesday, Monday"),   ["Monday", "Wednesday"]);
+ok("three days",          S.matchDays("Thursday, Monday, Tuesday"),
+                                                              ["Monday", "Tuesday", "Thursday"]);
+ok("slash separated",     S.matchDays("Sat/Sun"),             ["Saturday", "Sunday"]);
+ok("the word and",        S.matchDays("Friday and Saturday"), ["Friday", "Saturday"]);
+ok("plus separated",      S.matchDays("Mon + Tue"),           ["Monday", "Tuesday"]);
+ok("duplicates collapsed",S.matchDays("Monday, Mon, monday"), ["Monday"]);
+ok("junk among real days",S.matchDays("Funday, Tuesday"),     ["Tuesday"]);
+ok("all junk is all week",S.matchDays("whenever"),            []);
+ok("blank is all week",   S.matchDays(""),                    []);
+ok("spaces are all week", S.matchDays("   "),                 []);
+
+/* A special naming several days is listed under each of them. */
+ok("multi-day special lands in every group", (function () {
+  var host = document.createElement("div");
+  S.render(host, S.toSpecials(objs(
+    "Item,Description,Price,Day\nPerch,,$9.50,\"Wednesday, Monday\"\nSoup,,$5,Monday")));
+  return [...host.querySelectorAll(".specials__group")].map(function (g) {
+    return g.querySelector(".specials__day").textContent + ":" +
+      [...g.querySelectorAll(".special__name")].map(function (n) { return n.textContent; }).join(",");
+  });
+})(), ["Monday:Perch,Soup", "Wednesday:Perch"]);
+
+/* ------------------------------------------------------------ menu ----- */
+var MENU_CSV =
+  "Section,Group,Item,Description,Price,Note\n" +
+  "Breakfast,Sandwiches,The Get Hooked,2 eggs and cheese,$5.00,\n" +
+  "Breakfast,Sandwiches,Pike Bait,Three meats,$6.50,\n" +
+  "Breakfast,Sandwiches,,,,Add extra meat: $1.00.\n" +
+  "Breakfast,The By Catch,Coffee,,$2.00,\n" +
+  "Lunch,,Reuben,On marble rye,$8.50,\n" +
+  "Lunch,For the Cold Day,Chili,,Sm $5 / Lg $6,\n" +
+  ",,Orphan with no section,,$1,\n";
+var shaped = M.group(objs(MENU_CSV));
+
+ok("sections found", Object.keys(shaped).sort(), ["Breakfast", "Lunch"]);
+ok("row with no section dropped", JSON.stringify(shaped).indexOf("Orphan") < 0, true);
+ok("groups keep sheet order",
+   shaped.Breakfast.map(function (g) { return g.name; }), ["Sandwiches", "The By Catch"]);
+ok("items keep sheet order",
+   shaped.Breakfast[0].items.map(function (i) { return i.name; }),
+   ["The Get Hooked", "Pike Bait"]);
+ok("note rows become notes, not items",
+   shaped.Breakfast[0].notes, ["Add extra meat: $1.00."]);
+ok("note rows are not counted as items", shaped.Breakfast[0].items.length, 2);
+ok("blank group name allowed", shaped.Lunch[0].name, "");
+ok("free-text price survives", shaped.Lunch[1].items[0].price, "Sm $5 / Lg $6");
+ok("description carried through", shaped.Breakfast[0].items[0].description, "2 eggs and cheese");
+
+/* Rows for the same group that are not adjacent still land in one group. */
+/* The live sheet is headed "Flavour"; the CSVs now ship "Flavor". Both work. */
+ok("coffee accepts either spelling", (function () {
+  var host = document.createElement("ul");
+  host.id = "coffee-flavors";
+  document.body.appendChild(host);
+  M.applyFlavors([{ flavour: "Hazelnut" }, { flavor: "Pistachio" }, { flavour: "" }]);
+  var got = [].slice.call(host.querySelectorAll("li")).map(function (l) { return l.textContent; });
+  host.remove();
+  return got;
+})(), ["Hazelnut", "Pistachio"]);
+
+/* Section and Group come from a spreadsheet, so they can be any string.
+   Names that collide with Object.prototype must not throw or pollute. */
+ok("prototype-ish names are just names", (function () {
+  var before = ({}).polluted;
+  var r;
+  try {
+    r = M.group([{ section: "__proto__", group: "x", item: "a", price: "$1" },
+                 { section: "Breakfast", group: "toString", item: "b", price: "$2" },
+                 { section: "constructor", group: "hasOwnProperty", item: "c", price: "$3" }]);
+  } catch (e) { return "THREW: " + e.message; }
+  return [Object.keys(r).sort().join(","),
+          r.Breakfast[0].name,
+          r.Breakfast[0].items[0].name,
+          ({}).polluted === before];
+})(), ["Breakfast,__proto__,constructor", "toString", "b", true]);
+
+ok("scattered rows regroup",
+   M.group(objs("Section,Group,Item,Price\nLunch,Cold,Chili,$5\nLunch,Hot,BLT,$7\nLunch,Cold,Soup,$4"))
+     .Lunch.map(function (g) { return g.name + ":" + g.items.length; }),
+   ["Cold:2", "Hot:1"]);
+
+window.TESTS = results;
+window.SUMMARY = {
+  total: results.length,
+  failed: results.filter(function (r) { return !r.pass; }).length,
+  failures: results.filter(function (r) { return !r.pass; })
+};
+document.title = window.SUMMARY.failed ? "FAIL " + window.SUMMARY.failed : "PASS " + window.SUMMARY.total;
+</script>
+</body></html>

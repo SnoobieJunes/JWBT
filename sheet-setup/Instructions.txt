@@ -1,0 +1,128 @@
+HOW TO CHANGE THE WEBSITE
+
+Everything on the website that changes is in this one spreadsheet.
+You need the Google Sheets app on your phone. Nothing else.
+
+There is no save button and no publish button. You type it here, and
+it is on the website. Give it five minutes.
+
+The tabs are along the bottom of the screen: Specials, Hours, Menu,
+Coffee. Here is what each one does.
+
+
+--------------------------------------------------------------
+SPECIALS  -  the board on the front page
+--------------------------------------------------------------
+
+TO ADD ONE
+1. Tap the "Specials" tab at the bottom.
+2. Tap the first empty row under the last special.
+3. Type the name in the "Item" column.
+4. Swipe left and fill in "Description" and "Price".
+5. Leave "Day" empty if it runs all week. If it is only one day,
+   tap the box and pick the day from the list.
+
+TO TAKE ONE OFF
+Press and hold the row number on the left, then Delete row.
+Do not just erase the words - delete the whole row.
+
+If this tab is empty the website says "Call us for this week's
+specials" with the phone number. That is fine. Nothing looks broken.
+
+
+--------------------------------------------------------------
+HOURS  -  the open/closed sign and the hours list
+--------------------------------------------------------------
+
+One row per day. Change the "Open" and "Close" boxes.
+
+Write the time any way you like: 5:30 AM, 5:30am, 2:00 PM, 14:00.
+They all work.
+
+CLOSED FOR THE DAY
+Put the word "Closed" in both boxes, or leave them both empty.
+
+THE "NOTE" COLUMN
+Whatever you type there shows up under the day on the website.
+Thursday says "Late - dinner specials". Leave it empty for a
+normal day.
+
+This tab also drives the "Open now" / "Closed right now" sign at
+the top of every page. It works itself out from the clock, so once
+the hours are right here you never touch it again.
+
+If you type something the website cannot read, that day just keeps
+the hours it had. It will never tell people you are closed when
+you are open.
+
+
+--------------------------------------------------------------
+MENU  -  every item and price on the menu page
+--------------------------------------------------------------
+
+TO CHANGE A PRICE
+Find the row, tap the "Price" box, type the new price. Done.
+
+Write prices with a dollar sign: $5.00. You can also write things
+like "Sm $5.00 / Lg $7.50" or "$1.75 each" and it shows up exactly
+the way you type it.
+
+TO ADD AN ITEM
+Copy the row above it, then change the words. The important part
+is that "Section" and "Group" match the rows around it, because
+that is what decides where it lands on the page.
+
+  Section  Breakfast, Lunch or Coffee - which part of the page
+  Group    the heading it sits under, like "Sandwiches" or
+           "The By Catch". Some lists have no heading; leave it
+           empty for those.
+
+TO TAKE AN ITEM OFF
+Press and hold the row number, then Delete row.
+
+THE ORDER MATTERS
+Items appear on the website in the same order they are in here.
+To move something up the page, move its row up.
+
+THE "NOTE" COLUMN
+A row with a Note and no Item becomes one of the little grey
+boxes, like "Add extra meat to any sandwich: $1.00." Put it in
+the same Section and Group as the list it belongs under.
+
+
+--------------------------------------------------------------
+COFFEE  -  the flavor list
+--------------------------------------------------------------
+
+One flavor per row. Add a row, type the flavor. Delete a row to
+take one off. That is the whole tab.
+
+The coffee prices are not here - they are on the Menu tab, under
+Section "Coffee".
+
+
+--------------------------------------------------------------
+THINGS WORTH KNOWING
+--------------------------------------------------------------
+
+GIVE IT FIVE MINUTES
+Google is slow to pass changes along. If you do not see it right
+away that is normal. Check again in five minutes before worrying.
+
+NEVER CHANGE ROW 1
+The top row of every tab is the labels: Item, Description, Price,
+Day, and so on. If those get changed or deleted, that part of the
+website stops updating and goes back to what it said before.
+
+NEVER RENAME A TAB
+They have to stay called Specials, Hours, Menu and Coffee.
+
+YOU CANNOT BREAK THE WEBSITE FROM HERE
+If anything is wrong in this sheet, the website falls back to what
+it said last time. Worst case it is a bit out of date. It never
+goes blank and it never shows an error.
+
+ANYONE WITH THE LINK CAN READ THIS SHEET
+That is how the website reads it. Do not put anything private in
+here - no personal details, no passwords, no supplier prices you
+would not want a customer to see.

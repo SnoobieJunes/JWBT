@@ -1,0 +1,956 @@
+/* ==========================================================================
+   JW Bait & Tackle — 145 Cayuga St, Union Springs, N.Y.
+   One stylesheet, no build step, no framework.
+
+   Design intent: a hand-painted general-store sign. Thick rules, flat color,
+   big type, no gradients, no animation beyond hover/focus. Colors are
+   sampled from the shop's own fish logo (deep green #04503b, cream, black)
+   with one warm red accent, like a bobber. Every foreground/background pair
+   used here clears WCAG AA; most clear AAA.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- 1. tokens */
+
+:root {
+  /* Paper */
+  --paper:        #f5eee2;
+  --paper-2:      #efe6d7;   /* alternating section band */
+  --paper-line:   #d9cdb6;
+
+  /* Ink */
+  --ink:          #16150f;   /* 15.9:1 on paper */
+  --ink-soft:     #4a463b;   /*  8.2:1 on paper */
+
+  /* Brand */
+  --green:        #04503b;   /*  8.2:1 with cream */
+  --green-dark:   #033427;   /* 12.0:1 with cream */
+  --green-line:   #0a6349;
+  --cream:        #f5eee2;
+  --cream-dim:    #bcd4c6;   /*  6.0:1 on green */
+  --red:          #9c2f26;   /*  6.4:1 on paper */
+
+  /* Link and focus-ring colors. These are custom properties rather than
+     separate `.on-dark a` rules so that dark sections can re-tint links
+     without out-specifying the button classes. */
+  --link:         #04503b;
+  --link-hover:   #9c2f26;
+  --focus:        #16150f;
+
+  --rule:         4px;
+  --measure:      36rem;     /* comfortable reading column */
+  --wide:         64rem;
+
+  --font-display: "Bitter", Georgia, "Noto Serif", "Droid Serif", serif;
+  --font-body:    system-ui, -apple-system, "Segoe UI", Roboto,
+                  "Helvetica Neue", Arial, sans-serif;
+
+  /* A whisper of paper grain. Inline SVG: costs no network request and
+     rasterises once into a 180px tile. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+}
+
+@font-face {
+  font-family: "Bitter";
+  src: url("fonts/bitter-700-latin.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2000-206F, U+2122, U+2212;
+}
+
+/* ------------------------------------------------------------ 2. resets */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image: var(--grain);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 40em) {
+  body { font-size: 1.125rem; }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 0.5em;
+  letter-spacing: 0.005em;
+}
+
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--link); }
+a:hover { color: var(--link-hover); }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Everything below is fed from the Google Sheet, so a long unbroken run of
+   characters — a pasted URL, a runaway word — can turn up in any of it. Each
+   one sits in a flex or grid item, whose default min-width:auto floors it at
+   the width of that longest run, and `overflow-wrap: break-word` on <body>
+   does NOT count toward min-content size. Without both of these the page
+   scrolls sideways on a phone. `anywhere` is the value that counts. */
+.item__name,
+.item__desc,
+.special__name,
+.special__desc,
+.flavors li,
+.menu-group__title,
+.specials__day {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.special__head,
+.item__head,
+.special,
+.specials__list > li { min-width: 0; }
+
+/* Links that sit on a line of their own get tapped with a thumb, not clicked
+   with a mouse pointer. Give them a real target instead of the bare height of
+   the text. (Links inside a running sentence are left alone — padding there
+   would fight the line spacing, and WCAG exempts them.) */
+.hero__where a,
+.orderline p a,
+.footer address a,
+.footer p a,
+.footer__sign a,
+.prose a[href^="tel:"] {
+  display: inline-block;
+  padding-block: 0.3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------- 3. helpers */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wide);
+  margin-inline: auto;
+  padding-inline: 1.125rem;
+}
+
+@media (min-width: 40em) {
+  .wrap { padding-inline: 1.75rem; }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 50;
+  background: var(--cream);
+  color: var(--green-dark);
+  border: 3px solid var(--green-dark);
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.skip-link:focus { top: 0.5rem; }
+
+/* ------------------------------------------------------------- 4. buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.7rem 1.15rem;
+  border: 3px solid var(--ink);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.btn:hover {
+  color: var(--ink);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
+
+/* Cream button on a dark field — the main "call us" action */
+.btn--call {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--green-dark);
+  box-shadow: 3px 3px 0 #01251b;
+}
+.btn--call:hover { color: var(--green-dark); box-shadow: 2px 2px 0 #01251b; }
+.btn--call:active { box-shadow: 0 0 0 #01251b; }
+
+/* Outlined button on a dark field */
+.btn--ghost {
+  background: transparent;
+  border-color: var(--cream);
+  color: var(--cream);
+  box-shadow: 3px 3px 0 #01251b;
+}
+.btn--ghost:hover { color: var(--cream); box-shadow: 2px 2px 0 #01251b; }
+.btn--ghost:active { box-shadow: 0 0 0 #01251b; }
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.btn-row .btn { flex: 1 1 13rem; }
+
+/* ------------------------------------------------------- 5. dark sections */
+
+.on-dark {
+  background-color: var(--green);
+  background-image: var(--grain);
+  color: var(--cream);
+  --link: var(--cream);
+  --link-hover: #ffd9a0;
+  --focus: var(--cream);
+}
+.on-dark h1, .on-dark h2, .on-dark h3 { color: var(--cream); }
+
+/* ---------------------------------------------------------------- 6. hero */
+
+.hero {
+  border-bottom: var(--rule) solid var(--ink);
+  padding-block: 2rem 2.25rem;
+  text-align: center;
+}
+
+.hero__mark {
+  width: 116px;
+  height: 116px;
+  margin: 0 auto 1.1rem;
+  border: 3px solid var(--cream);
+  background: #000;
+}
+
+@media (min-width: 40em) {
+  .hero { padding-block: 3rem 3rem; }
+  .hero__mark { width: 148px; height: 148px; }
+}
+
+.hero__name {
+  font-size: clamp(2.35rem, 11vw, 4.25rem);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.hero__rule {
+  width: min(18rem, 70%);
+  height: 3px;
+  margin: 0.9rem auto;
+  background: var(--cream-dim);
+  border: 0;
+}
+
+.hero__tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 4.6vw, 1.6rem);
+  margin-bottom: 0.15rem;
+}
+
+.hero__town {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  margin-bottom: 1.4rem;
+}
+
+.hero__actions {
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.hero__where {
+  margin-top: 1.35rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.hero__where a { text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+/* ------------------------------------------------------- 7. open / closed */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 100%;
+  margin: 0 auto 1.4rem;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--cream);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.28);
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3.6vw, 1.15rem);
+  line-height: 1.3;
+  text-align: left;
+}
+
+.status__dot {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--cream-dim);
+  border: 2px solid var(--cream);
+}
+
+.status--open  .status__dot { background: #7dd6a3; }
+.status--closed .status__dot { background: #e0705f; }
+
+.status__note {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--cream-dim);
+}
+
+/* ------------------------------------------------------------ 8. sections */
+
+.section {
+  padding-block: 2.75rem;
+  border-bottom: var(--rule) solid var(--ink);
+}
+
+@media (min-width: 40em) {
+  .section { padding-block: 3.75rem; }
+}
+
+.section--band {
+  background-color: var(--paper-2);
+  background-image: var(--grain);
+}
+
+.section__head { margin-bottom: 1.75rem; }
+
+.section__title {
+  font-size: clamp(1.7rem, 6.4vw, 2.6rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.section__title::after {
+  content: "";
+  display: block;
+  width: 3.5rem;
+  height: 5px;
+  margin-top: 0.7rem;
+  background: var(--red);
+}
+
+.on-dark .section__title::after { background: var(--cream-dim); }
+
+.section__lede {
+  max-width: var(--measure);
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+.on-dark .section__lede { color: var(--cream-dim); }
+
+.prose { max-width: var(--measure); }
+
+/* --------------------------------------------------------- 9. photographs */
+
+.shot {
+  margin: 0;
+  border: 3px solid var(--ink);
+  background: var(--ink);
+}
+.shot img { width: 100%; }
+
+.shot figcaption {
+  padding: 0.6rem 0.85rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.band-shot {
+  border-block: var(--rule) solid var(--ink);
+}
+
+/* Shown whole, not cropped to a letterbox. The shop sign sits at the top of
+   this photograph and the menu boards at the bottom, so trimming either edge
+   loses the point of it. */
+.band-shot img {
+  width: 100%;
+  height: auto;
+}
+
+/* --------------------------------------------------------- 10. specials */
+
+.specials__group + .specials__group { margin-top: 1.9rem; }
+
+.specials__day {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--red);
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--paper-line);
+}
+
+.specials__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.1rem;
+}
+
+@media (min-width: 46em) {
+  .specials__list { grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem; }
+}
+
+.special {
+  border-left: 5px solid var(--green);
+  padding-left: 0.9rem;
+}
+
+.special__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.6rem;
+}
+
+.special__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.special__price {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.special__desc {
+  margin: 0.2rem 0 0;
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* Fallback shown when the sheet is unreachable, empty, or not set up yet. */
+.specials__callout {
+  border: 3px dashed var(--green);
+  background: var(--paper);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.specials__callout p {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.specials__foot {
+  margin-top: 1.6rem;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------- 11. the ritual */
+
+.ritual {
+  display: grid;
+  gap: 1.5rem;
+  counter-reset: beat;
+}
+
+@media (min-width: 46em) {
+  .ritual { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+}
+
+.beat {
+  display: flex;
+  flex-direction: column;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+}
+
+.beat__media { border-bottom: 3px solid var(--ink); }
+.beat__media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+/* Third beat has no photograph of the lake — color and type carry it. */
+.beat__plate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  padding: 1rem;
+  background-color: var(--green);
+  background-image: var(--grain);
+  border-bottom: 3px solid var(--ink);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 4.2vw, 1.5rem);
+  line-height: 1.25;
+  text-align: center;
+}
+
+.beat__body { padding: 1.1rem 1.15rem 1.25rem; }
+
+.beat__title {
+  font-size: 1.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.beat__title::before {
+  counter-increment: beat;
+  content: counter(beat) ". ";
+  color: var(--red);
+}
+
+.beat__body p {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* ------------------------------------------------------- 12. price lists */
+
+.pricelist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricelist > li + li {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--paper-line);
+}
+
+.item__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.item__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* Dotted leader, like a printed menu */
+.item__leader {
+  flex: 1 1 auto;
+  min-width: 1rem;
+  height: 0;
+  border-bottom: 2px dotted var(--paper-line);
+  transform: translateY(-0.3em);
+}
+
+.item__price {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  white-space: nowrap;
+  color: var(--green);
+}
+
+.item__desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.note {
+  margin-top: 1.1rem;
+  padding: 0.85rem 1rem;
+  border-left: 5px solid var(--red);
+  background: var(--paper);
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+}
+.section--band .note { background: #f6efe3; }
+.note p { margin-bottom: 0.4rem; }
+.note p:last-child { margin-bottom: 0; }
+
+/* -------------------------------------------------------- 13. menu teaser */
+
+.teaser {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 50em) {
+  .teaser { grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; }
+}
+
+.teaser__cta { margin-top: 1.5rem; }
+
+/* ------------------------------------------------------------ 14. two-up */
+
+.two-up {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 50em) {
+  .two-up { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+  .two-up--text-first > :first-child { order: -1; }
+}
+
+.pair {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 34em) {
+  .pair { grid-template-columns: 1fr 1fr; }
+}
+
+.stack > * + * { margin-top: 1.25rem; }
+
+/* --------------------------------------------------------- 15. facebook */
+
+.fb__frame {
+  position: relative;
+  margin-top: 1.75rem;
+  max-width: 500px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  /* Belt and braces: the plugin is asked to adapt to its container, but if
+     that ever fails it scrolls inside this box instead of making the whole
+     page scroll sideways on a phone. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Sits underneath the embed and shows through only if it renders nothing. */
+.fb__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.fb__frame iframe {
+  position: relative;
+  z-index: 1;
+  display: block;
+  border: 0;
+  /* 180px is the plugin's own minimum; 500px is its maximum. */
+  width: 100%;
+  min-width: 180px;
+  max-width: 500px;
+  height: 640px;
+}
+
+/* ------------------------------------------------------------ 16. hours */
+
+.hours {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.hours caption {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  text-align: left;
+  padding-bottom: 0.6rem;
+  color: var(--cream);
+}
+
+.hours th,
+.hours td {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--green-line);
+  vertical-align: baseline;
+}
+
+.hours th {
+  font-weight: 400;
+  font-family: var(--font-display);
+  padding-right: 1rem;
+}
+
+.hours td { text-align: right; font-variant-numeric: tabular-nums; }
+
+.hours tr:last-child th,
+.hours tr:last-child td { border-bottom: 0; }
+
+.hours .is-late th,
+.hours .is-late td { color: #ffd9a0; }
+
+.hours__flag {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------ 17. footer */
+
+.footer {
+  border-top: var(--rule) solid var(--ink);
+  padding-block: 2.5rem;
+}
+
+.footer__grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 46em) {
+  .footer__grid { grid-template-columns: 1.1fr 1fr; gap: 3rem; }
+}
+
+.footer__title {
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+}
+
+.footer address {
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.footer a { text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+.footer__sign {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--green-line);
+}
+
+.footer__sign img {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border: 2px solid var(--cream-dim);
+  background: #000;
+}
+
+.footer__sign p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--cream-dim);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------- 18. menu page */
+
+.pagehead {
+  border-bottom: var(--rule) solid var(--ink);
+  padding-block: 1.25rem;
+}
+
+.pagehead__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.pagehead__mark {
+  width: 60px;
+  height: 60px;
+  flex: none;
+  border: 2px solid var(--cream);
+  background: #000;
+}
+
+.pagehead__names { flex: 1 1 12rem; min-width: 0; }
+
+.pagehead__name {
+  font-size: clamp(1.35rem, 5.5vw, 2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.pagehead__name a { text-decoration: none; }
+.pagehead__name a:hover { text-decoration: underline; }
+
+.pagehead__sub {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+}
+
+.orderline {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 3px solid var(--cream);
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.orderline p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 3.8vw, 1.3rem);
+  line-height: 1.3;
+}
+
+.menu-nav {
+  border-bottom: var(--rule) solid var(--ink);
+  background-color: var(--paper-2);
+  background-image: var(--grain);
+  padding-block: 0.9rem;
+}
+
+.menu-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.menu-nav a {
+  display: inline-block;
+  padding-block: 0.35rem;
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.menu-nav a:hover { color: var(--red); }
+
+.menu-group + .menu-group { margin-top: 2.5rem; }
+
+.menu-group__title {
+  font-size: clamp(1.25rem, 4.6vw, 1.6rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 3px solid var(--ink);
+}
+
+.flavors {
+  columns: 2;
+  column-gap: 1.5rem;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  font-size: 1rem;
+}
+
+@media (min-width: 44em) { .flavors { columns: 3; } }
+
+.flavors li {
+  break-inside: avoid;
+  padding: 0.22rem 0;
+}
+
+/* ------------------------------------------------------------- 19. print */
+
+@media print {
+  :root { --grain: none; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .on-dark { background: #fff !important; color: #000 !important; }
+  .on-dark h1, .on-dark h2, .on-dark h3, .on-dark a { color: #000 !important; }
+  .pagehead__sub, .orderline { color: #000; }
+  .orderline { background: #fff; border-color: #000; }
+  .pagehead, .menu-nav, .section, .footer { border-color: #000; }
+  /* "Closed right now" is meaningless the moment the page leaves the printer. */
+  .menu-nav, .skip-link, .btn, .fb__frame, .band-shot,
+  .status { display: none !important; }
+  .item__price, .special__price, a { color: #000 !important; }
+  /* Colors set on descendants of .on-dark are not inherited, so flipping the
+     section to white leaves them pale-on-white. Force the stragglers black:
+     the Hours caption, Thursday's highlighted row, and the two muted lines. */
+  .hours caption, .hours .is-late th, .hours .is-late td,
+  .hero__town, .footer__sign p { color: #000 !important; }
+  .menu-group { break-inside: auto; }
+  .pricelist > li { break-inside: avoid; }
+}

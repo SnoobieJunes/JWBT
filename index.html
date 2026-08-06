@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JW Bait &amp; Tackle — Live Bait &amp; Great Food, Union Springs, N.Y.</title>
+<meta name="description" content="Breakfast, lunch and live bait at 145 Cayuga St in Union Springs, New York. Open at 5:30 AM every day. Call (315) 209-8832 to order ahead.">
+<meta name="theme-color" content="#04503b">
+
+<!-- Social previews. These paths are relative on purpose: this site has no
+     domain hardcoded anywhere so it can move from GitHub Pages to a custom
+     domain without edits. If a link preview ever comes through without the
+     picture, make these two absolute once the real domain is live. -->
+<meta property="og:type" content="business.business">
+<meta property="og:title" content="JW Bait &amp; Tackle — Live Bait &amp; Great Food">
+<meta property="og:description" content="Breakfast, lunch and live bait at 145 Cayuga St in Union Springs, New York. Open at 5:30 AM every day.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The JW Bait &amp; Tackle leaping fish logo beside the words Live Bait and Great Food, Union Springs, N.Y.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="img/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preload" href="css/fonts/bitter-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ============================================================== hero -->
+<header class="hero on-dark">
+  <div class="wrap">
+    <picture>
+      <source type="image/webp" srcset="img/logo-256.webp 256w, img/logo-512.webp 512w" sizes="(min-width: 40em) 148px, 116px">
+      <img class="hero__mark" src="img/logo-256.jpg"
+           srcset="img/logo-256.jpg 256w, img/logo-512.jpg 512w"
+           sizes="(min-width: 40em) 148px, 116px"
+           width="256" height="256" fetchpriority="high"
+           alt="JW Bait &amp; Tackle logo: a leaping trout on a fishing line">
+    </picture>
+
+    <h1 class="hero__name">JW Bait &amp; Tackle</h1>
+    <hr class="hero__rule">
+    <p class="hero__tagline">Live Bait &amp; Great Food</p>
+    <p class="hero__town">Union Springs, N.Y.</p>
+
+    <!-- The text inside this element is the honest fallback for anyone with
+         JavaScript switched off. js/main.js replaces it with the live
+         open/closed state, worked out from the hours table in the footer. -->
+    <p class="status" id="open-status">
+      <span class="status__dot" aria-hidden="true"></span>
+      <span>Open 5:30 AM every day
+        <span class="status__note">Closing time varies by day &mdash; see the hours below</span>
+      </span>
+    </p>
+
+    <div class="hero__actions">
+      <div class="btn-row">
+        <a class="btn btn--call" href="tel:+13152098832">Call (315)&nbsp;209-8832</a>
+        <a class="btn btn--ghost" href="menu.html">See the menu</a>
+      </div>
+    </div>
+
+    <p class="hero__where">
+      145 Cayuga St, Union Springs, NY 13160<br>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=145+Cayuga+St%2C+Union+Springs%2C+NY+13160">Get directions</a>
+    </p>
+  </div>
+</header>
+
+<figure class="band-shot shot" style="border-inline:0">
+  <picture>
+    <source type="image/webp" srcset="img/storefront-summer-800.webp 800w, img/storefront-summer-1400.webp 1400w" sizes="100vw">
+    <img src="img/storefront-summer-800.jpg"
+         srcset="img/storefront-summer-800.jpg 800w, img/storefront-summer-1400.jpg 1400w"
+         sizes="100vw" width="1400" height="738" loading="lazy" decoding="async"
+         alt="The JW Bait &amp; Tackle storefront on a summer morning, flag bunting in the windows and two blue canopies over the sidewalk tables">
+  </picture>
+  <figcaption>145 Cayuga St, on the corner in Union Springs.</figcaption>
+</figure>
+
+<main id="main">
+
+  <!-- ====================================================== specials -->
+  <section class="section" id="specials" aria-labelledby="specials-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="specials-title">This Week&rsquo;s Specials</h2>
+        <p class="section__lede">The same board that is up in the shop. Changes through the week</p>
+      </div>
+
+      <!-- js/specials.js swaps this out when the sheet loads. Everything
+           below is what stands if it does not: no signal, no sheet, no
+           JavaScript. It is never a spinner and never an error. -->
+      <div id="specials-content" aria-live="polite">
+        <div class="specials__callout">
+          <p>Call us for this week&rsquo;s specials:</p>
+          <a class="btn" href="tel:+13152098832">(315)&nbsp;209-8832</a>
+        </div>
+      </div>
+
+      <p class="specials__foot">Thursday nights are dinner specials, made in house and worth pre-ordering. <a href="menu.html#thursday">More about Thursday</a>.</p>
+    </div>
+  </section>
+
+  <!-- ======================================================= ritual -->
+  <section class="section section--band" aria-labelledby="ritual-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="ritual-title">Gone Fishing</h2>
+        <p class="section__lede">The summertime ritual, wake up at dawn, grab some grub, head to the shore, and relax.  </p>
+      </div>
+
+      <div class="ritual">
+        <div class="beat">
+          <div class="beat__media">
+            <picture>
+              <source type="image/webp" srcset="img/get-hooked-560.webp 560w, img/get-hooked-900.webp 900w" sizes="(min-width: 46em) 30vw, 92vw">
+              <img src="img/get-hooked-560.jpg"
+                   srcset="img/get-hooked-560.jpg 560w, img/get-hooked-900.jpg 900w"
+                   sizes="(min-width: 46em) 30vw, 92vw"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Two breakfast sandwiches on the griddle: fried eggs topped with bacon and slices of American cheese melting over them">
+            </picture>
+          </div>
+          <div class="beat__body">
+            <h3 class="beat__title">Grab breakfast</h3>
+            <p>The Get Hooked and a coffee, on the counter by 5:30. Or a Tackle Box if it is going to be a long one.</p>
+          </div>
+        </div>
+
+        <div class="beat">
+          <div class="beat__media">
+            <picture>
+              <source type="image/webp" srcset="img/live-bait-560.webp 560w, img/live-bait-640.webp 640w" sizes="(min-width: 46em) 30vw, 92vw">
+              <img src="img/live-bait-560.jpg"
+                   srcset="img/live-bait-560.jpg 560w, img/live-bait-640.jpg 640w"
+                   sizes="(min-width: 46em) 30vw, 92vw"
+                   width="640" height="480" loading="lazy" decoding="async"
+                   alt="Looking down into the minnow tank: hundreds of live fathead minnows in clear green water">
+            </picture>
+          </div>
+          <div class="beat__body">
+            <h3 class="beat__title">Grab bait</h3>
+            <p>Fatheads and worms out of the tanks in back, plus whatever tackle you forgot at home. Same trip, same counter.</p>
+          </div>
+        </div>
+
+        <div class="beat">
+          <div class="beat__media">
+            <picture>
+              <source type="image/webp" srcset="img/cayuga-lake-560.webp 560w, img/cayuga-lake-900.webp 900w" sizes="(min-width: 46em) 30vw, 92vw">
+              <img src="img/cayuga-lake-560.jpg"
+                   srcset="img/cayuga-lake-560.jpg 560w, img/cayuga-lake-900.jpg 900w"
+                   sizes="(min-width: 46em) 30vw, 92vw"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Cayuga Lake with the sun low on the horizon, a wooded point silhouetted against orange sky and the water flat and still">
+            </picture>
+          </div>
+          <div class="beat__body">
+            <h3 class="beat__title">Hit the lake</h3>
+            <p>Out the door before the sun is properly up, the lake less than 5 minutes down the road. Lines cast, coffee still hot. That is the whole idea.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================== menu teaser -->
+  <section class="section" aria-labelledby="food-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="food-title">The Food</h2>
+        <p class="section__lede">Breakfast from half past five, lunch from the griddle, and a rotating bakery case with whatever got baked that morning.</p>
+      </div>
+
+      <div class="teaser">
+        <div>
+          <ul class="pricelist">
+            <li>
+              <div class="item__head">
+                <h3 class="item__name">The Get Hooked</h3>
+                <span class="item__leader" aria-hidden="true"></span>
+                <span class="item__price">$5.00</span>
+              </div>
+              <p class="item__desc">2 eggs, American cheese, choice of one (bacon, sausage, ham) on a hard roll.</p>
+            </li>
+            <li>
+              <div class="item__head">
+                <h3 class="item__name">Tackle Box</h3>
+                <span class="item__leader" aria-hidden="true"></span>
+                <span class="item__price">$7.50</span>
+              </div>
+              <p class="item__desc">Two eggs cooked your way, choice of one meat, on a bed of home fries.</p>
+            </li>
+            <li>
+              <div class="item__head">
+                <h3 class="item__name">The Hungry Bass</h3>
+                <span class="item__leader" aria-hidden="true"></span>
+                <span class="item__price">$8.00</span>
+              </div>
+              <p class="item__desc">3 eggs, three meats and cheese on a hero. Names itself, really.</p>
+            </li>
+            <li>
+              <div class="item__head">
+                <h3 class="item__name">Reuben</h3>
+                <span class="item__leader" aria-hidden="true"></span>
+                <span class="item__price">$8.50</span>
+              </div>
+              <p class="item__desc">Corned beef, sauerkraut, Swiss and Russian on marble rye.</p>
+            </li>
+            <li>
+              <div class="item__head">
+                <h3 class="item__name">Coffee</h3>
+                <span class="item__leader" aria-hidden="true"></span>
+                <span class="item__price">$2.00</span>
+              </div>
+              <p class="item__desc">Flavored, iced or hot, is $4.50 &mdash; fifteen flavors, from salted caramel to lavender lemon.</p>
+            </li>
+          </ul>
+
+          <div class="teaser__cta btn-row">
+            <a class="btn" href="menu.html">See the full menu</a>
+            <a class="btn" href="tel:+13152098832">Call to order</a>
+          </div>
+        </div>
+
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="img/bakery-case-560.webp 560w, img/bakery-case-900.webp 900w" sizes="(min-width: 50em) 40vw, 92vw">
+            <img src="img/bakery-case-560.jpg"
+                 srcset="img/bakery-case-560.jpg 560w, img/bakery-case-900.jpg 900w"
+                 sizes="(min-width: 50em) 40vw, 92vw"
+                 width="900" height="675" loading="lazy" decoding="async"
+                 alt="The bakery case stacked with trays of jumbo muffins and cookies, with handwritten signs reading New Pistachio and New Pumpkin Cheesecake">
+          </picture>
+          <figcaption>The case, stocked with both savory and sweets! </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================== bait & tackle -->
+  <section class="section section--band" aria-labelledby="bait-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="bait-title">Bait &amp; Tackle</h2>
+      </div>
+
+      <div class="two-up">
+        <div class="prose">
+          <p>Live bait, including fathead minnows and worms. Rods, reels, tackle boxes, lures, and the everyday supplies you only remember you needed once you are already out the door.</p>
+          <p>It is a small shop, so we keep what people around here actually use on Cayuga Lake, and we can usually point you at the rest.</p>
+        </div>
+
+        <div class="stack">
+          <figure class="shot">
+            <picture>
+              <source type="image/webp" srcset="img/lures-560.webp 560w, img/lures-640.webp 640w" sizes="(min-width: 50em) 45vw, 92vw">
+              <img src="img/lures-560.jpg"
+                   srcset="img/lures-560.jpg 560w, img/lures-640.jpg 640w"
+                   sizes="(min-width: 50em) 45vw, 92vw"
+                   width="640" height="480" loading="lazy" decoding="async"
+                   alt="The lure wall: rows of soft plastics and jigs hung on pegboard, every packet hand-marked with its price">
+            </picture>
+            <figcaption>The lure wall</figcaption>
+          </figure>
+
+          <p class="beat__plate" style="aspect-ratio:auto; border:3px solid var(--ink); padding:2.25rem 1.25rem;">
+            If we don&rsquo;t have it,<br>ask.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= about -->
+  <section class="section" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="about-title">About the Shop</h2>
+      </div>
+
+      <div class="two-up two-up--text-first">
+        <div class="prose">
+          <!-- TODO: ask the owners for the details worth adding here — who
+               runs the shop, what year it opened, and how the bait counter
+               and the kitchen ended up under one roof. Nothing has been
+               invented in the meantime; this paragraph only says what is
+               already a matter of public record. -->
+          <p>JW Bait &amp; Tackle is a family-run shop on the corner of Cayuga Street and Factory. We sell more than just food or fishing supplies, we care about the community and the people in it. </p>
+          <p>Come in and order at the counter. Call ahead if you are in a hurry.  Ask about our catering!</p>
+        </div>
+
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="img/storefront-night-800.webp 800w, img/storefront-night-1400.webp 1400w" sizes="(min-width: 50em) 45vw, 92vw">
+            <img src="img/storefront-night-800.jpg"
+                 srcset="img/storefront-night-800.jpg 800w, img/storefront-night-1400.jpg 1400w"
+                 sizes="(min-width: 50em) 45vw, 92vw"
+                 width="1400" height="788" loading="lazy" decoding="async"
+                 alt="The shop at night in December, windows lit and garlanded, a bench out front and a smoker parked by the door">
+          </picture>
+          <figcaption>December on Cayuga Street.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================== facebook -->
+  <section class="section section--band" aria-labelledby="fb-title">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title" id="fb-title">On Facebook</h2>
+        <p class="section__lede">Day-to-day specials, Thursday dinner announcements and photographs of whatever just came out of the oven go up on the Facebook page first.</p>
+      </div>
+
+      <!-- The button comes before the embed on purpose. If the plugin fails
+           to render, which happens with numeric-ID pages, this section still
+           does its job. -->
+      <p class="btn-row" style="max-width:22rem">
+        <a class="btn" href="https://www.facebook.com/profile.php?id=100092317033661" rel="noopener">Follow us on Facebook</a>
+      </p>
+
+      <div class="fb__frame">
+        <!-- This line sits behind the embed. If the plugin paints, it covers
+             this up. If the plugin comes back empty — which numeric-ID pages
+             sometimes do, and which a tracker blocker guarantees — this shows
+             through instead of a blank rectangle. -->
+        <p class="fb__fallback">See our latest specials and photos on Facebook.</p>
+        <!-- `scrolling` is formally obsolete, and the validator says so, but
+             it is still the only way a parent page can suppress scrollbars
+             inside a cross-origin frame, and it is what Facebook's own embed
+             generator emits. Kept deliberately. -->
+        <iframe
+          src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fprofile.php%3Fid%3D100092317033661&amp;tabs=timeline&amp;width=500&amp;height=640&amp;small_header=false&amp;adapt_container_width=true&amp;hide_cover=false"
+          width="500" height="640" title="JW Bait &amp; Tackle on Facebook"
+          scrolling="no" allowfullscreen
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================ footer -->
+<footer class="footer on-dark">
+  <div class="wrap">
+    <div class="footer__grid">
+
+      <div>
+        <!-- These data- attributes are what js/main.js reads to work out
+             whether the shop is open. Change the hours here and the banner
+             at the top of the page follows. Times are 24-hour, local to the
+             shop. A day with no data-open/data-close counts as closed. -->
+        <table class="hours">
+          <caption>Hours</caption>
+          <tbody>
+            <tr data-day="1" data-open="05:30" data-close="14:00"><th scope="row">Monday</th><td>5:30 AM &ndash; 2:00 PM</td></tr>
+            <tr data-day="2" data-open="05:30" data-close="14:00"><th scope="row">Tuesday</th><td>5:30 AM &ndash; 2:00 PM</td></tr>
+            <tr data-day="3" data-open="05:30" data-close="14:00"><th scope="row">Wednesday</th><td>5:30 AM &ndash; 2:00 PM</td></tr>
+            <tr class="is-late" data-day="4" data-open="05:30" data-close="19:00"><th scope="row">Thursday <span class="hours__flag">Late &mdash; dinner specials</span></th><td>5:30 AM &ndash; 7:00 PM</td></tr>
+            <tr data-day="5" data-open="05:30" data-close="14:00"><th scope="row">Friday</th><td>5:30 AM &ndash; 2:00 PM</td></tr>
+            <tr data-day="6" data-open="05:30" data-close="15:00"><th scope="row">Saturday</th><td>5:30 AM &ndash; 3:00 PM</td></tr>
+            <tr data-day="0" data-open="05:30" data-close="13:00"><th scope="row">Sunday</th><td>5:30 AM &ndash; 1:00 PM</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h2 class="footer__title">Find Us</h2>
+        <address>
+          145 Cayuga St<br>
+          Union Springs, NY 13160<br>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=145+Cayuga+St%2C+Union+Springs%2C+NY+13160">Get directions</a>
+        </address>
+
+        <h2 class="footer__title" style="margin-top:1.5rem">Call Us</h2>
+        <p><a href="tel:+13152098832">(315) 209-8832</a><br>
+        Orders, pre-orders and Thursday dinners.</p>
+
+        <p class="btn-row" style="max-width:20rem">
+          <a class="btn btn--call" href="tel:+13152098832">Call the shop</a>
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer__sign">
+      <picture>
+        <source type="image/webp" srcset="img/logo-128.webp">
+        <img src="img/logo-128.jpg" width="128" height="128" loading="lazy" decoding="async" alt="">
+      </picture>
+      <p>JW Bait &amp; Tackle &middot; Live Bait &amp; Great Food &middot; Union Springs, N.Y.<br>
+      <a href="menu.html">Menu</a> &middot; <a href="https://www.facebook.com/profile.php?id=100092317033661" rel="noopener">Facebook</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/sheet.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/specials.js" defer></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["Restaurant", "Store"],
+  "name": "JW Bait & Tackle",
+  "slogan": "Live Bait & Great Food",
+  "image": "img/og-image.jpg",
+  "telephone": "+1-315-209-8832",
+  "servesCuisine": "American",
+  "priceRange": "$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "145 Cayuga St",
+    "addressLocality": "Union Springs",
+    "addressRegion": "NY",
+    "postalCode": "13160",
+    "addressCountry": "US"
+  },
+  "sameAs": ["https://www.facebook.com/profile.php?id=100092317033661"],
+  "hasMenu": "menu.html",
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Friday"],
+      "opens": "05:30",
+      "closes": "14:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Thursday",
+      "opens": "05:30",
+      "closes": "19:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "05:30",
+      "closes": "15:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Sunday",
+      "opens": "05:30",
+      "closes": "13:00"
+    }
+  ]
+}
+</script>
+
+</body>
+</html>

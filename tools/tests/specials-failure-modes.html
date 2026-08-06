@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>sheet failure modes</title>
+<link rel="stylesheet" href="../../css/style.css"></head>
+<body>
+<div id="stage"></div>
+
+<script src="../../js/sheet.js"></script>
+<script>
+// Park the real loader while the consumer scripts boot, so their automatic
+// start-up does not fire a real request at Google. The tests put it back.
+window.__REAL_LOAD = window.JWSheet.load;
+window.JWSheet.load = function () { return Promise.reject(new Error("stubbed at boot")); };
+</script>
+<script src="../../js/main.js"></script>
+<script src="../../js/specials.js"></script>
+<script src="../../js/menu.js"></script>
+
+<script type="module">
+/* Runs the real js/sheet.js against a stubbed network, then drives the real
+   consumers with whatever comes back. Nothing here touches Google. */
+
+window.JWSheet.load = window.__REAL_LOAD;
+const REAL_FETCH = window.fetch;
+const SPECIALS_FALLBACK =
+  '<div id="specials-content" aria-live="polite">' +
+  '<div class="specials__callout"><p>Call us for this week&rsquo;s specials:</p>' +
+  '<a class="btn" href="tel:+13152098832">(315)&nbsp;209-8832</a></div></div>';
+
+const resp = (body, status = 200, ctype = 'text/csv') => () =>
+  Promise.resolve({ ok: status >= 200 && status < 300, status,
+                    headers: new Headers({ 'content-type': ctype }),
+                    text: () => Promise.resolve(body) });
+
+const stall = (body) => (u, opts) => Promise.resolve({
+  ok: true, status: 200, headers: new Headers({ 'content-type': 'text/csv' }),
+  text: () => new Promise((res, rej) => {
+    const t = setTimeout(() => res(body), 8000);
+    if (opts && opts.signal) opts.signal.addEventListener('abort',
+      () => { clearTimeout(t); rej(new DOMException('Aborted', 'AbortError')); });
+  })
+});
+
+const GOOD_SPECIALS =
+  'Item,Description,Price,Day\n' +
+  '"Perch Sandwich","With lettuce, tartar",$9.50,\n' +
+  'Chili,,Sm $5 / Lg $6,\n' +
+  'Pot Pie,9-inch chicken,$20.00,Thursday\n';
+
+const GOOD_HOURS =
+  'Day,Open,Close,Note\n' +
+  'Monday,6:00 AM,1:00 PM,\n' +
+  'Tuesday,Closed,Closed,\n' +
+  'Wednesday,5:30 AM,2:00 PM,\n' +
+  'Thursday,5:30 AM,8:00 PM,Late — dinner\n' +
+  'Friday,5:30 AM,2:00 PM,\n' +
+  'Saturday,5:30 AM,3:00 PM,\n' +
+  'Sunday,5:30 AM,1:00 PM,\n';
+
+const GOOD_MENU =
+  'Section,Group,Item,Description,Price,Note\n' +
+  'Breakfast,Sandwiches,Sheet Sandwich,From the sheet,$6.25,\n' +
+  'Breakfast,Sandwiches,,,,Sheet note.\n' +
+  'Lunch,,Sheet Lunch,,$9.99,\n';
+
+const WRONG_TAB = 'Item,Description,Price,Day\nSomething,,$1,\n';
+
+/* ------------------------------------------------------- specials ------ */
+async function runSpecials(name, fetchImpl, waitMs) {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = SPECIALS_FALLBACK;
+  window.fetch = fetchImpl;
+  const t0 = performance.now();
+
+  const target = document.getElementById('specials-content');
+  // Mirrors js/specials.js start(), with DEMO_UNTIL_SHEET_HAS_ROWS shipped as
+  // false: nothing renders a demo board, so an emptied tab keeps the committed
+  // "call us" callout exactly like every other failure.
+  try {
+    const rows = await window.JWSheet.load('specials', ['item', 'day']);
+    const specials = window.JW_SPECIALS.toSpecials(rows);
+    if (specials.length) window.JW_SPECIALS.render(target, specials);
+  } catch (err) {
+    /* every code leaves the committed markup standing */
+  }
+  window.fetch = REAL_FETCH;
+  const node = document.getElementById('specials-content');
+  return {
+    ms: Math.round(performance.now() - t0),
+    fallbackShown: !!node.querySelector('.specials__callout'),
+    itemHeadingTags: [...new Set([...node.querySelectorAll('.special__name')].map(h => h.tagName))],
+    headings: [...node.querySelectorAll('.specials__day')].map(h => h.tagName + ':' + h.textContent),
+    items: [...node.querySelectorAll('.special__name')].map(h => h.textContent)
+  };
+}
+
+/* ---------------------------------------------------------- hours ------ */
+const HOURS_BASELINE = `<table class="hours"><tbody>
+  <tr data-day="1" data-open="05:30" data-close="14:00"><th>Monday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="2" data-open="05:30" data-close="14:00"><th>Tuesday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="3" data-open="05:30" data-close="14:00"><th>Wednesday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="4" data-open="05:30" data-close="19:00"><th>Thursday</th><td>5:30 AM – 7:00 PM</td></tr>
+  <tr data-day="5" data-open="05:30" data-close="14:00"><th>Friday</th><td>5:30 AM – 2:00 PM</td></tr>
+  <tr data-day="6" data-open="05:30" data-close="15:00"><th>Saturday</th><td>5:30 AM – 3:00 PM</td></tr>
+  <tr data-day="0" data-open="05:30" data-close="13:00"><th>Sunday</th><td>5:30 AM – 1:00 PM</td></tr>
+</tbody></table>`;
+
+async function runHours(name, fetchImpl) {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = HOURS_BASELINE;
+  window.fetch = fetchImpl;
+  try {
+    const rows = await window.JWSheet.load('hours', ['day', 'open', 'close']);
+    window.JW_HOURS.applySheetHours(rows);
+  } catch (e) { /* baseline stands */ }
+  window.fetch = REAL_FETCH;
+  return [...document.querySelectorAll('table.hours [data-day]')]
+    .map(r => r.querySelector('th').textContent.trim() + ' = ' + r.querySelector('td').textContent);
+}
+
+/* ----------------------------------------------------------- menu ------ */
+const MENU_BASELINE =
+  '<div id="menu-breakfast" data-menu-section="Breakfast"><div class="menu-group">' +
+  '<h3 class="menu-group__title">Sandwiches</h3><ul class="pricelist"><li><div class="item__head">' +
+  '<h4 class="item__name">Committed Sandwich</h4><span class="item__price">$5.00</span></div></li>' +
+  '</ul></div></div>' +
+  '<div id="menu-lunch" data-menu-section="Lunch"><div class="menu-group"><ul class="pricelist">' +
+  '<li><div class="item__head"><h3 class="item__name">Committed Lunch</h3>' +
+  '<span class="item__price">$8.00</span></div></li></ul></div></div>';
+
+async function runMenu(name, fetchImpl) {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = MENU_BASELINE;
+  window.fetch = fetchImpl;
+  try {
+    const rows = await window.JWSheet.load('menu', ['section', 'item', 'price']);
+    window.JW_MENU.applyMenu(rows);
+  } catch (e) { /* baseline stands */ }
+  window.fetch = REAL_FETCH;
+  return [...document.querySelectorAll('[data-menu-section] .item__name')].map(h => h.textContent);
+}
+
+/* ------------------------------------------------------------ run ------ */
+window.RESULTS = {};
+const S_CASES = {
+  'specials: good sheet':        resp(GOOD_SPECIALS),
+  'specials: header only':       resp('Item,Description,Price,Day\n'),
+  'specials: blank rows only':   resp('Item,Description,Price,Day\n,,,\n,,,\n'),
+  'specials: 404':               resp('nope', 404),
+  'specials: 500':               resp('boom', 500),
+  'specials: offline':           () => Promise.reject(new TypeError('Failed to fetch')),
+  'specials: sign-in page':      resp('<!DOCTYPE html><html><body>Sign in</body></html>', 200, 'text/html'),
+  'specials: sign-in as csv':    resp('<!DOCTYPE html><html><body>Sign in</body></html>', 200, 'text/csv'),
+  'specials: body stalls':       stall(GOOD_SPECIALS),
+  'specials: injection attempt': resp('Item,Description,Price,Day\n"<img src=x onerror=alert(1)>","<script>alert(2)<\/script>",$1,\n')
+};
+for (const [name, impl] of Object.entries(S_CASES)) {
+  window.RESULTS[name] = await runSpecials(name, impl);
+}
+
+const H_CASES = {
+  'hours: good sheet':      resp(GOOD_HOURS),
+  'hours: wrong tab':       resp(WRONG_TAB),
+  'hours: offline':         () => Promise.reject(new TypeError('Failed to fetch')),
+  'hours: body stalls':     stall(GOOD_HOURS),
+  'hours: mistyped row':    resp('Day,Open,Close,Note\nMonday,gibberish,nonsense,\nSunday,7:00 AM,11:00 AM,\n'),
+  'hours: backwards times': resp('Day,Open,Close,Note\nMonday,2:00 PM,5:30 AM,\n'),
+  'hours: deliberate shut': resp('Day,Open,Close,Note\nMonday,Closed,Closed,\nTuesday,,,\n')
+};
+for (const [name, impl] of Object.entries(H_CASES)) {
+  window.RESULTS[name] = await runHours(name, impl);
+}
+
+const M_CASES = {
+  'menu: good sheet':       resp(GOOD_MENU),
+  'menu: wrong tab':        resp(WRONG_TAB),
+  'menu: offline':          () => Promise.reject(new TypeError('Failed to fetch')),
+  'menu: empty tab':        resp('Section,Group,Item,Description,Price,Note\n'),
+  'menu: only one section': resp('Section,Group,Item,Description,Price,Note\nLunch,,Only Lunch,,$1,\n')
+};
+for (const [name, impl] of Object.entries(M_CASES)) {
+  window.RESULTS[name] = await runMenu(name, impl);
+}
+
+window.RESULTS['injection: elements created'] = {
+  scripts: document.querySelectorAll('#stage script').length,
+  imgs: document.querySelectorAll('#stage img').length
+};
+document.title = 'DONE';
+</script>
+</body></html>

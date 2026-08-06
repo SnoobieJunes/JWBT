@@ -1,0 +1,12 @@
+# Stock photography that was reposted to the shop's Facebook page. It is not
+# theirs and it must never appear on the site. Kept on disk only so nobody
+# re-downloads it by mistake.
+photos-original/_excluded-stock/
+
+# Local tooling
+.venv/
+venv/
+__pycache__/
+
+# macOS
+.DS_Store
